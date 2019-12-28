@@ -16,7 +16,8 @@
     "axios": "^0.19.0",
     "pouchdb": "^7.1.1",
     "quasar": "^1.0.0",
-    "vue-pouch-db": "^2.0.2"
+    "vue-pouch-db": "^2.0.2",
+    "vuejs-jwt": "^1.1.0"
   },
   "devDependencies": {
     "@quasar/app": "^1.0.0",
