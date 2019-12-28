@@ -135,6 +135,7 @@ export default {
       }
     },
     updateTodo: async function (updatedTodo) {
+      console.log(updatedTodo)
       try {
         const response = await this.$axios(
           {
