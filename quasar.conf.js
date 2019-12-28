@@ -43,9 +43,16 @@ module.exports = function (ctx) {
       // * true   - Import everything from Quasar
       //            (not treeshaking Quasar; biggest bundle size; convenient)
       all: 'auto',
+      config: {
+        cordova: {
+          backButtonExit: false
+        }
+      },
 
       components: ['QList', 'QItem', 'QItemSection', 'QItemLabel'],
-      directives: [],
+      directives: [
+        'GoBack'
+      ],
 
       // Quasar plugins
       plugins: []

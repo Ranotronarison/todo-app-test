@@ -6,7 +6,11 @@
           Todo App
         </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <b class="q-mr-sm">{{ auth.user.username }}</b>
+
+        <div>
+          <q-btn @click="logout" color="secondary" label="Sortir" icon-right="logout"/>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -27,6 +31,19 @@ export default {
   data () {
     return {
       leftDrawerOpen: false
+    }
+  },
+  methods: {
+    logout: function () {
+      this.$store.dispatch('auth/updateUserInfo', { isConnected: false })
+      this.$router.push('/')
+    }
+  },
+  computed: {
+    auth: {
+      get () {
+        return this.$store.state.auth
+      }
     }
   }
 }
