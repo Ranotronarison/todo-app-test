@@ -14,9 +14,9 @@
       <router-view />
     </q-page-container>
 
-    <q-footer>
+    <!-- <q-footer>
       <label>1 todo restant</label>
-    </q-footer>
+    </q-footer> -->
   </q-layout>
 </template>
 

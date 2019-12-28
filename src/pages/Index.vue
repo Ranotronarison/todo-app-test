@@ -155,7 +155,7 @@ export default {
           const itemIndex = this.$refs.todoItem.findIndex(item => {
             return item.todo._id === updatedTodo._id
           })
-          this.$refs.todoItem[itemIndex].toggleEdit()
+          this.$refs.todoItem[itemIndex].closeEdit()
         }
       } catch (error) {
         console.log(error)

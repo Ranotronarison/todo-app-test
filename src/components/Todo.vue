@@ -9,8 +9,8 @@
         </div>
       </div>
       <div v-else class="flex justify-between">
-        <q-checkbox :label="todo.name" v-model="todo.finished" :value="todo.finished"
-          />
+        <q-checkbox :label="todo.name" v-model="todo.finished" color="teal"
+          @input="toggleTodo"/>
         <div>
           <q-btn flat color="primary" icon="edit" size="md" @click="toggleEdit" />
           <q-btn flat color="negative" icon="delete" size="md"
@@ -35,9 +35,15 @@ export default {
     toggleEdit () {
       this.editMode = !this.editMode
     },
+    closeEdit () {
+      this.editMode = false
+    },
     cancelEdit () {
       this.editMode = false
       this.initialName = this.todo.name
+    },
+    toggleTodo (val) {
+      this.$emit('updateTodo', { ...this.todo, finished: val })
     }
   }
 }
