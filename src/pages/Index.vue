@@ -9,9 +9,10 @@
         <q-item v-for="todo in todos" :key="todo._id" v-bind:class="todo.finished && 'disabled'">
             <todo
               v-bind:todo="todo"
-              v-bind:editMode="editMode"
               v-on:toggleEdit="toggleEdit"
               v-on:deleteOne="deleteOne"
+              v-on:updateTodo="updateTodo"
+              ref="todoItem"
             ></todo>
           </q-item>
       </q-list>
@@ -43,9 +44,7 @@ export default {
       name: 'PageIndex',
       componentKey: 0,
       todoName: '',
-      todos: [],
-      disabled: false,
-      editMode: false
+      todos: []
     }
   },
   methods: {
@@ -63,10 +62,10 @@ export default {
             selector: {
               user: connectedUser
             },
-            fields: ['_id', '_rev', 'name', 'user'],
+            // fields: ['_id', '_rev', 'name', 'user', 'finished', 'createdAt'],
             sort: [
               {
-                createdAt: 'desc'
+                createdAt: 'asc'
               }
             ]
           },
@@ -135,11 +134,31 @@ export default {
         console.log(error)
       }
     },
-    updateTodo: function (todoName, newName) {
-      /** */
-    },
-    toggleEdit: function () {
-      this.editMode = !this.editMode
+    updateTodo: async function (updatedTodo) {
+      try {
+        const response = await this.$axios(
+          {
+            method: 'POST',
+            url: '/tododb',
+            baseURL: DB.url,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json; charset=utf-8'
+            },
+            data: { ...updatedTodo, updatedAt: new Date() },
+            auth: credentials
+          }
+        )
+        if (response.data.ok) {
+          this.fetchTodos()
+          const itemIndex = this.$refs.todoItem.findIndex(item => {
+            return item.todo._id === updatedTodo._id
+          })
+          this.$refs.todoItem[itemIndex].toggleEdit()
+        }
+      } catch (error) {
+        console.log(error)
+      }
     },
     refreshView: function () {
       this.componentKey += 1
