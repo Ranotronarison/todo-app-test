@@ -20,9 +20,13 @@
 
 <script>
 import todo from '../components/Todo'
-export default {
+/* import exios from ''
+ */export default {
   components: {
     todo
+  },
+  beforeCreate: function () {
+
   },
   data: function () {
     return {
