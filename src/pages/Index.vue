@@ -5,8 +5,8 @@
       <q-input type="text" v-model="todoName" filled label="Titre" />
       <q-btn label="Ajouter" class="full-width q-my-sm" type="submit"/>
     </q-form>
-      <q-list id="todoList" bordered separator>
-        <q-item v-for="todo in todos" :key="todo.id" v-bind:class="todo.finished && 'disabled'">
+      <q-list id="todoList" bordered separator :key="componentKey">
+        <q-item v-for="todo in todos" :key="todo._id" v-bind:class="todo.finished && 'disabled'">
             <todo
               v-bind:todo="todo"
               v-bind:editMode="editMode"
@@ -20,10 +20,16 @@
 
 <script>
 import todo from '../components/Todo'
+
 const DB = {
   url: 'https://fc49457c-280f-4807-bf98-346c2a60d022-bluemix.cloudantnosqldb.appdomain.cloud/',
   database: 'tododb'
 }
+const credentials = {
+  password: '6243a2d127a35b31a780eb39aaceed40fa629108cd8c52bd31c76d20fdb9ec6d',
+  username: 'fc49457c-280f-4807-bf98-346c2a60d022-bluemix'
+}
+const connectedUser = 'Nomena'
 
 export default {
   components: {
@@ -35,7 +41,7 @@ export default {
   data: function () {
     return {
       name: 'PageIndex',
-      key: 0,
+      componentKey: 0,
       todoName: '',
       todos: [],
       disabled: false,
@@ -55,38 +61,88 @@ export default {
           },
           data: {
             selector: {
-              user: 'Nomena'
+              user: connectedUser
             },
-            fields: ['_id', '_rev', 'name']
+            fields: ['_id', '_rev', 'name', 'user'],
+            sort: [
+              {
+                createdAt: 'desc'
+              }
+            ]
           },
-          auth: {
-            'password': '6243a2d127a35b31a780eb39aaceed40fa629108cd8c52bd31c76d20fdb9ec6d',
-            'username': 'fc49457c-280f-4807-bf98-346c2a60d022-bluemix'
-          }
+          auth: credentials
         }
       ).then((response) => {
+        console.log(response.data.docs)
         this.todos = response.data.docs
       }).catch(function (error) {
         console.log(error.message)
       })
     },
-    onSubmit: function () {
-      if (this.todoName.trim() && this.todoName.length > 0) {
-        this.todos.push({ id: this.key, name: this.todoName, finished: false })
-        this.todoName = ''
-        this.key = this.key + 1
+    async createTodo ({ name, user }) {
+      try {
+        const response = await this.$axios(
+          {
+            method: 'post',
+            url: '/tododb/',
+            baseURL: DB.url,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json; charset=utf-8'
+            },
+            data: {
+              name,
+              createdAt: new Date(),
+              user,
+              finished: false
+            },
+            auth: credentials
+          }
+        )
+        console.log(response)
+        if (response.data.ok) {
+          this.fetchTodos()
+        }
+      } catch (error) {
+        console.log(error)
       }
     },
-    deleteOne: function (id) {
-      this.todos = this.todos.filter((value) => {
-        return value.id !== id
-      })
+    onSubmit: function () {
+      if (this.todoName.trim() && this.todoName.length > 0) {
+        this.createTodo({ name: this.todoName.trim(), user: connectedUser })
+        this.todoName = ''
+      }
+    },
+    deleteOne: async function ({ _id, _rev }) {
+      try {
+        const response = await this.$axios(
+          {
+            method: 'delete',
+            url: `/tododb/${_id}?rev=${_rev}`,
+            baseURL: DB.url,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json; charset=utf-8'
+            },
+            auth: credentials
+          }
+        )
+        console.log(response)
+        if (response.data.ok) {
+          this.fetchTodos()
+        }
+      } catch (error) {
+        console.log(error)
+      }
     },
     updateTodo: function (todoName, newName) {
       /** */
     },
     toggleEdit: function () {
       this.editMode = !this.editMode
+    },
+    refreshView: function () {
+      this.componentKey += 1
     }
   }
 }

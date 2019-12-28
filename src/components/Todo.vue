@@ -10,8 +10,9 @@
       <div v-else class="flex justify-between">
         <q-checkbox :label="todo.name" v-model="todo.finished" :value="todo.name" />
         <div>
-          <q-btn flat color="primary" icon="edit" size="md" @click="$emit('toggleEdit',todo.id)" />
-          <q-btn flat color="negative" icon="delete" size="md" @click="$emit('deleteOne',todo.id)" />
+          <q-btn flat color="primary" icon="edit" size="md" @click="$emit('toggleEdit',todo._id)" />
+          <q-btn flat color="negative" icon="delete" size="md"
+            @click="$emit('deleteOne',{_id: todo._id, _rev: todo._rev})" />
         </div>
       </div>
     </q-item-section>
