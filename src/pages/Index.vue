@@ -72,7 +72,6 @@ export default {
           auth: credentials
         }
       ).then((response) => {
-        console.log(response.data.docs)
         this.todos = response.data.docs
       }).catch(function (error) {
         console.log(error.message)
@@ -98,7 +97,6 @@ export default {
             auth: credentials
           }
         )
-        console.log(response)
         if (response.data.ok) {
           this.fetchTodos()
         }
@@ -126,7 +124,6 @@ export default {
             auth: credentials
           }
         )
-        console.log(response)
         if (response.data.ok) {
           this.fetchTodos()
         }
@@ -135,7 +132,6 @@ export default {
       }
     },
     updateTodo: async function (updatedTodo) {
-      console.log(updatedTodo)
       try {
         const response = await this.$axios(
           {

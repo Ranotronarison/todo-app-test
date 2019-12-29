@@ -18,19 +18,38 @@
       <router-view />
     </q-page-container>
 
-    <!-- <q-footer>
-      <label>1 todo restant</label>
-    </q-footer> -->
+    <q-footer class="flex justify-around">
+      <div>{{ todos.length || 0 }} todos</div>
+      <div>{{ todos.filter(todo => todo.finished).length || 0 }} terminé</div>
+    </q-footer>
   </q-layout>
 </template>
 
 <script>
 export default {
   name: 'MyLayout',
-
+  mounted () {
+    this.$db
+      .find({ selector: { user: 'Nomena' } })
+      .then((result) => {
+        this.todos = result.docs
+      })
+      .catch(function (err) {
+        console.log(err)
+      })
+    this.$db.changes({
+      since: 'now',
+      live: true,
+      include_docs: true
+    }).on('change', (change) => {
+      const unChanged = this.todos.filter(todo => todo._id !== change.doc._id)
+      this.todos = [...unChanged, change.doc._id]
+      console.log(this.todos)
+    })
+  },
   data () {
     return {
-      leftDrawerOpen: false
+      todos: []
     }
   },
   methods: {
