@@ -49,60 +49,33 @@ export default {
   },
   methods: {
     fetchTodos () {
-      this.$axios(
-        {
-          method: 'post',
-          url: '/tododb/_find',
-          baseURL: DB.url,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json; charset=utf-8'
-          },
-          data: {
-            selector: {
-              user: connectedUser
-            },
-            // fields: ['_id', '_rev', 'name', 'user', 'finished', 'createdAt'],
-            sort: [
-              {
-                createdAt: 'asc'
-              }
-            ]
-          },
-          auth: credentials
-        }
-      ).then((response) => {
-        this.todos = response.data.docs
-      }).catch(function (error) {
-        console.log(error.message)
-      })
+      this.$db
+          .find({ selector: { user: connectedUser } })
+          .then((result) => {
+            this.todos = result.docs
+          })
+          .catch(function (err) {
+            console.log(err)
+          })
     },
-    async createTodo ({ name, user }) {
-      try {
-        const response = await this.$axios(
-          {
-            method: 'post',
-            url: '/tododb/',
-            baseURL: DB.url,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json; charset=utf-8'
-            },
-            data: {
+    createTodo ({ name, user }) {
+      const todo = {
               name,
               createdAt: new Date(),
               user,
               finished: false
-            },
-            auth: credentials
-          }
-        )
-        if (response.data.ok) {
-          this.fetchTodos()
-        }
-      } catch (error) {
-        console.log(error)
       }
+      this.$db.post(todo)
+      .then(function (response) {
+          if(response.ok) {
+            /** */
+          }else {
+            /** */
+          }
+      })
+      .catch(function (err) {
+        console.log(err)
+      })
     },
     onSubmit: function () {
       if (this.todoName.trim() && this.todoName.length > 0) {
@@ -110,55 +83,28 @@ export default {
         this.todoName = ''
       }
     },
-    deleteOne: async function ({ _id, _rev }) {
-      try {
-        const response = await this.$axios(
-          {
-            method: 'delete',
-            url: `/tododb/${_id}?rev=${_rev}`,
-            baseURL: DB.url,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json; charset=utf-8'
-            },
-            auth: credentials
-          }
-        )
-        if (response.data.ok) {
-          this.fetchTodos()
-        }
-      } catch (error) {
-        console.log(error)
-      }
+    deleteOne: function ({ _id, _rev }) {
+      this.$db.remove(_id, _rev)
+        .then(function(response) {
+          /**  */
+        })
+        .catch(function(err) {
+          console.log(err)
+        })
     },
-    updateTodo: async function (updatedTodo) {
-      try {
-        const response = await this.$axios(
-          {
-            method: 'POST',
-            url: '/tododb',
-            baseURL: DB.url,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json; charset=utf-8'
-            },
-            data: { ...updatedTodo, updatedAt: new Date() },
-            auth: credentials
-          }
-        )
-        if (response.data.ok) {
-          this.fetchTodos()
-          const itemIndex = this.$refs.todoItem.findIndex(item => {
+    updateTodo: function (updatedTodo) {
+      const itemIndex = this.$refs.todoItem.findIndex(item => {
             return item.todo._id === updatedTodo._id
           })
+      this.$db.put({ ...updatedTodo, updatedAt: new Date() })
+       .then(function(response) {
+          /** */
           this.$refs.todoItem[itemIndex].closeEdit()
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    },
-    refreshView: function () {
-      this.componentKey += 1
+       })
+       .catch(function(err) {
+          /** */
+          this.$refs.todoItem[itemIndex].closeEdit()
+       })
     }
   }
 }
